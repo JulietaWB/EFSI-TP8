@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import api from "../api/api";
 
@@ -8,6 +8,7 @@ export default function Navbar() {
   const [error, setError] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -26,6 +27,8 @@ export default function Navbar() {
 
     fetchCategories();
   }, []);
+
+  // Sin listeners globales: solo hover/click controlados
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -65,7 +68,7 @@ export default function Navbar() {
             </NavLink>
             
             {/* Products Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <div className="flex items-center">
                 <NavLink
                   to="/productos"
@@ -78,6 +81,9 @@ export default function Navbar() {
                 <button
                   onClick={toggleDropdown}
                   className="ml-1 p-1 text-gray-700 hover:text-brand transition-colors"
+                  aria-haspopup="menu"
+                  aria-expanded={isDropdownOpen}
+                  type="button"
                 >
                   <svg className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -86,36 +92,36 @@ export default function Navbar() {
               </div>
               
               {isDropdownOpen && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-50">
-                  <div className="py-2">
+                <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border z-50" role="menu">
+                <div className="py-2">
+                  <NavLink
+                    to="/productos"
+                    onClick={() => setIsDropdownOpen(false)}
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    Ver todos
+                  </NavLink>
+                  {loading && (
+                    <div className="px-4 py-2 text-gray-500 text-sm">
+                      Cargando categorías...
+                    </div>
+                  )}
+                  {error && (
+                    <div className="px-4 py-2 text-red-500 text-sm">
+                      {error}
+                    </div>
+                  )}
+                  {Array.isArray(categories) && categories.map((category) => (
                     <NavLink
-                      to="/productos"
+                      key={category}
+                      to={`/productos/categoria/${encodeURIComponent(category)}`}
                       onClick={() => setIsDropdownOpen(false)}
-                      className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors capitalize"
                     >
-                      Ver todos
+                      {category}
                     </NavLink>
-                    {loading && (
-                      <div className="px-4 py-2 text-gray-500 text-sm">
-                        Cargando categorías...
-                      </div>
-                    )}
-                    {error && (
-                      <div className="px-4 py-2 text-red-500 text-sm">
-                        {error}
-                      </div>
-                    )}
-                    {categories.map((category) => (
-                      <NavLink
-                        key={category}
-                        to={`/productos/categoria/${category}`}
-                        onClick={() => setIsDropdownOpen(false)}
-                        className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors capitalize"
-                      >
-                        {category}
-                      </NavLink>
-                    ))}
-                  </div>
+                  ))}
+                </div>
                 </div>
               )}
             </div>
@@ -174,11 +180,12 @@ export default function Navbar() {
                       `transition-colors ${isActive ? 'text-brand' : 'text-gray-700 hover:text-brand'}`
                     }
                   >
-                    Productos
+                  Productos
                   </NavLink>
                   <button
                     onClick={toggleDropdown}
                     className="p-1 text-gray-700 hover:text-brand transition-colors"
+                    type="button"
                   >
                     <svg className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -208,10 +215,10 @@ export default function Navbar() {
                         {error}
                       </div>
                     )}
-                    {categories.map((category) => (
+                    {Array.isArray(categories) && categories.map((category) => (
                       <NavLink
                         key={category}
-                        to={`/productos/categoria/${category}`}
+                        to={`/productos/categoria/${encodeURIComponent(category)}`}
                         onClick={() => {
                           setIsDropdownOpen(false);
                           setIsMenuOpen(false);

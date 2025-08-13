@@ -22,7 +22,7 @@ export default function Productos() {
         let response;
         if (idCategoria) {
           // Fetch products by category
-          response = await api.get(`/products/category/${idCategoria}`);
+          response = await api.get(`/products/category/${encodeURIComponent(idCategoria)}`);
           setProducts(response.data.products);
         } else {
           // Fetch all products
