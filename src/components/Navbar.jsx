@@ -16,7 +16,7 @@ export default function Navbar() {
       setError(null);
       try {
         const response = await api.get("/products/categories");
-        setCategories(response.data);
+        setCategories(response.data.map(cat => ({ name: cat.name, slug: cat.slug })));
       } catch (err) {
         setError("Error al cargar categorías");
         console.error("Error fetching categories:", err);
@@ -113,12 +113,12 @@ export default function Navbar() {
                   )}
                   {Array.isArray(categories) && categories.map((category) => (
                     <NavLink
-                      key={category}
-                      to={`/productos/categoria/${encodeURIComponent(category)}`}
+                      key={category.slug}
+                      to={`/productos/categoria/${encodeURIComponent(category.slug)}`}
                       onClick={() => setIsDropdownOpen(false)}
                       className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors capitalize"
                     >
-                      {category}
+                      {category.name}
                     </NavLink>
                   ))}
                 </div>
@@ -217,15 +217,15 @@ export default function Navbar() {
                     )}
                     {Array.isArray(categories) && categories.map((category) => (
                       <NavLink
-                        key={category}
-                        to={`/productos/categoria/${encodeURIComponent(category)}`}
+                        key={category.slug}
+                        to={`/productos/categoria/${encodeURIComponent(category.slug)}`}
                         onClick={() => {
                           setIsDropdownOpen(false);
                           setIsMenuOpen(false);
                         }}
                         className="block px-4 py-2 text-gray-700 hover:text-brand transition-colors capitalize"
                       >
-                        {category}
+                        {category.name}
                       </NavLink>
                     ))}
                   </div>
